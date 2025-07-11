@@ -34,6 +34,8 @@ on feed_follows.user_id = users.id
 
 where users.name = $1;
 
+-- name: DeleteFeedFollowForUser :exec
+delete from feed_follows where user_id = $1 and feed_id = $2;
 
 
 

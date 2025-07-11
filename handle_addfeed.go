@@ -9,15 +9,12 @@ import (
 	"github.com/utkarshjagtap/gator/internal/database"
 )
 
-func handleAddFeed(s *state, cmd command) error {
+func handleAddFeed(s *state, cmd command, user database.User) error {
 	if len(cmd.arguments) != 2 {
-		return fmt.Errorf("invalid usage")
+		return fmt.Errorf("invalid usage %s", cmd.arguments[0])
 	}
 
-	current_user, err := s.db.GetUser(context.Background(), s.config.Current_user_name)
-	if err != nil {
-		return fmt.Errorf("unable to fetch current user %v", err)
-	}
+	
 
 	newfeed, err := s.db.CreateNewFeed(context.Background(), database.CreateNewFeedParams{
 		ID:        uuid.New(),
@@ -25,7 +22,7 @@ func handleAddFeed(s *state, cmd command) error {
 		UpdatedAt: time.Now(),
 		Name:      cmd.arguments[0],
 		Url:       cmd.arguments[1],
-		UserID:    current_user.ID,
+		UserID:    user.ID,
 	})
 	if err != nil {
 		return fmt.Errorf("unable to create new feed %v", err)
@@ -38,12 +35,12 @@ func handleAddFeed(s *state, cmd command) error {
 		ID:        uuid.New(),
 		CreatedAt: time.Now(),
 		UpdatedAt: time.Now(),
-		UserID:    current_user.ID,
+		UserID:    user.ID,
 		FeedID:    newfeed.ID,
 	},
 	)
 
-	fmt.Println(current_user.Name, "has added", newfeed.Name)
+	fmt.Println(user.Name, "has added", newfeed.Name)
 	fmt.Println(followed.UserName, "has followed", followed.FeedName)
 
 	return nil
